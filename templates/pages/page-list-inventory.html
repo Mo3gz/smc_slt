@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    {% if user.is_superuser %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 class="mb-3">Inventory</h4>
+                    <!-- <p class="mb-0">Inventory refers to the organized stock of goods, materials, or products held by a business, ensuring <br>
+                        efficient tracking, management, and availability to meet customer or operational demands.</p> -->
+                </div>
+                <a href="{% url 'page_add_inventory' %}" class="btn btn-primary add-list"><i class="las la-plus mr-3"></i>Add Inventory</a>
+            </div>
+        </div>
+        <div class="col-lg-12 mb-3">
+            <div class="d-flex justify-content-between">
+                <form method="get" class="d-flex justify-content-start">
+                    <label for="page_size" class="mr-2">Show:</label>
+                    <select id="page_size" name="page_size" onchange="this.form.submit()" class="custom-select" style="width: 60px; height: 30px; padding: .25rem .5rem; font-size: .875rem; line-height: 1.5;">
+                        {% for size in page_sizes %}
+                            <option value="{{ size }}" {% if page_size == size %}selected{% endif %}>{{ size }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <form method="get" class="d-flex justify-content-end">
+                    <input type="hidden" name="page_size" value="{{ page_size }}">
+                    <label style="margin-right: 10px;"> Search: </label>
+                    <input type="text" name="q" value="{{ query }}" class="form-control w-auto" style="height: 30px; padding: .25rem .5rem; font-size: .875rem; line-height: 1.5;">
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="table-responsive rounded mb-3">
+            <table class="data-table table mb-0 tbl-server-info">
+                <thead class="bg-white text-uppercase">
+                    <tr class="ligth ligth-data">
+                        <th>Product Name</th>
+                        <th>Remain Quantity</th>
+                        <th>Inventory Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-table-body" class="ligth-body">
+                {% for inventory in page_obj %}
+                    <tr>
+                        <td>{{ inventory.product_name }}</td>
+                        <td>{{ inventory.remain_quantity }}</td>
+                        <td>{{ inventory.inventory_quantity }}</td>
+                        <td>
+                            <div class="d-flex align-items-center list-action">
+                                <a class="badge badge-info mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="View"
+                                    href="{% url 'page_view_inventory' inventory.id %}"><i class="ri-eye-line mr-0"></i></a>
+                                <a class="badge bg-success mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"
+                                    href="{% url 'page_update_inventory' inventory.id %}"><i class="ri-pencil-line mr-0"></i></a>
+                                <a class="badge bg-warning mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"
+                                    href="{% url 'page_delete_inventory' inventory.id %}"><i class="ri-delete-bin-line mr-0"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}&q={{ query }}">Previous</a></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&q={{ query }}">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&q={{ query }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}&q={{ query }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center">
+    <img src="{% static 'images/error/access_denied.jpg' %}" 
+         class="img-fluid" 
+         alt="Access Denied" 
+         style="max-width: 100%; height: auto;">
+</div>
+{% endif %}
+{% else %}
+
+<div class="position-relative text-center">
+    <img src="{% static 'images/error/login_first.jpg' %}" 
+         class="img-fluid w-100 vh-100" 
+         alt="Access Denied"
+         style="object-fit: cover;">
+
+    <a href="{% url 'login' %}" 
+       class="btn position-absolute" 
+       style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+       LOG IN
+    </a>
+</div>
+{% endif %}
+{% endblock content %}

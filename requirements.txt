@@ -1,0 +1,4 @@
+Django
+dotenv
+mysqlclient
+six

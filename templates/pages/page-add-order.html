@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    {% if user.role == 'WH' or user.is_superuser %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Add Order</h4>
+                    </div>
+                    <!-- <a href="{% url 'page_return_order' event_code %}" class="btn btn-primary add-list"><i class="ri-arrow-go-back-line"></i>Return Devices</a> -->
+
+                </div>
+                <div class="card-body">
+                    <form id="orderForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Event Code *</label>
+                                    {{orderform.event_code}}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Products *</label>
+                                    {{orderform.product_id}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{orderform.state}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mr-2">Add Device</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12">
+            <div class="d-flex justify-content-end mb-3">
+                <form method="get" class="d-flex justify-content-end">
+                    <input type="hidden" name="page_size" value="{{ page_size }}">
+                    <label style="margin-right: 10px;">Search:</label>
+                    <input type="text" name="q" value="{{ query }}" class="form-control w-auto" style="height: 30px; padding: .25rem .5rem; font-size: .875rem; line-height: 1.5;">
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-lg-12">
+            <div class="table-responsive rounded mb-3">
+            <table class="data-table table mb-0 tbl-server-info">
+                <thead class="bg-white text-uppercase">
+                    <tr class="ligth ligth-data">
+                        <th>Event Devices</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="ligth-body">
+                    {% for order in orders %}
+                    <tr>
+                        {% if order.product_id in returned_orders %}
+                            <td>This Device is Returned: {{ order.product_id }}</td>
+                            <td></td>
+                        {% else %}
+                            <td>{{ order.product_id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center list-action">
+                                    <a class="badge bg-warning mr-2" data-toggle="tooltip" data-placement="top" title="Delete"
+                                        href="{% url 'delete_product_order' order.id %}">
+                                        <i class="ri-delete-bin-line mr-0"></i>
+                                    </a>
+                                    <a class="badge bg-light mr-2" data-toggle="tooltip" data-placement="top" title="Maintenance"
+                                        href="{% url 'add_product_maint' event_code order.id order.product_id %}">
+                                        <i class="ri-tools-line"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+                
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="descriptionModalLabel">Products in Package</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalDescription">
+                        {% for product in products_in_package %}
+                        <tr>
+                            <td>{{ product.product_id }}</td>
+                            <td><input type="checkbox" name="selected_products" value="{{ product.product_id }}"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-success mt-3" id="addSelectedProducts">Add Selected</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-body {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+
+<input type="hidden" id="hasProducts" value="{% if products_in_package %}1{% else %}0{% endif %}">
+<input type="hidden" id="productCount" value="{{ product_count }}">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let hasProductsElement = document.getElementById("hasProducts");
+
+        if (hasProductsElement && hasProductsElement.value === "1") {
+            // Automatically check all checkboxes
+            document.querySelectorAll("input[name='selected_products']").forEach(function (checkbox) {
+                checkbox.checked = true;
+            });
+
+            $("#descriptionModal").modal("show");
+
+            // Detect when the modal is closed without clicking "Add Selected"
+            $("#descriptionModal").on("hidden.bs.modal", function () {
+                window.history.back();  // Go back to the previous page
+            });
+        }
+
+        // Add event listener for Enter key on product_id field and dropdown menu
+        const productIdField = document.getElementById("id_product_id");
+        if (productIdField) {
+            productIdField.focus();
+            productIdField.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("orderForm").submit();
+                }
+            });
+        }
+    });
+
+    document.getElementById("addSelectedProducts").addEventListener("click", function () {
+        let selectedProducts = [];
+        document.querySelectorAll("input[name='selected_products']:checked").forEach(function (checkbox) {
+            selectedProducts.push(checkbox.value);
+        });
+
+        if (selectedProducts.length > 0) {
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "";
+            form.style.display = "none";
+
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = "{{ csrf_token }}";
+            form.appendChild(csrfToken);
+
+            selectedProducts.forEach(function (productId) {
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "selected_products";
+                input.value = productId;
+                form.appendChild(input);
+            });
+
+             // Add product_count
+            let productCount = document.getElementById("productCount");
+            if (productCount) {
+                let countInput = document.createElement("input");
+                countInput.type = "hidden";
+                countInput.name = "product_count";
+                countInput.value = productCount.value;
+                form.appendChild(countInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        } else {
+            alert("Please select at least one product.");
+        }
+    });
+</script>
+
+{% else %}
+<div class="text-center">
+    <img src="{% static 'images/error/access_denied.jpg' %}" 
+         class="img-fluid" 
+         alt="Access Denied" 
+         style="max-width: 100%; height: auto;">
+</div>
+{% endif %}
+
+{% else %}
+<div class="position-relative text-center">
+    <img src="{% static 'images/error/login_first.jpg' %}" 
+         class="img-fluid w-100 vh-100" 
+         alt="Access Denied"
+         style="object-fit: cover;">
+
+    <a href="{% url 'login' %}" 
+       class="btn position-absolute" 
+       style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+       LOG IN
+    </a>
+</div>
+
+{% endif %}
+{% endblock %}
+<!-- End Content -->

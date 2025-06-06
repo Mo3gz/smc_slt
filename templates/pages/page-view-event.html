@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+    <!-- Content -->
+{% block content %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Add Party</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">                                  
+                            <!-- <div class="col-md-6">                      
+                                <div class="form-group">
+                                    <label>Party Code *</label>
+                                    {{partyform.party_code}}
+                                </div>
+                            </div> -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Party Name *</label>
+                                    {{partyform.party_name}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div> 
+                            <div class="col-md-6">
+                                <label>Leader Name *</label>
+                                    {{partyform.leader_name}}
+                            </div>  
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Warehouse Leader *</label>
+                                    {{partyform.wh_leader}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>   
+                            <!-- <div class="col-md-6"> 
+                                <div class="form-group">
+                                    <label>Order Tax *</label>
+                                    <select name="type" class="selectpicker form-control" data-style="py-0">
+                                        <option>No Text</option>
+                                        <option>GST @5%</option>
+                                        <option>VAT @10%</option>
+                                    </select>
+                                </div>
+                            </div>  -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Start Date *</label>
+                                    {{partyform.start_date}}
+                                </div>
+                            </div> 
+                            <!-- <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>End Date *</label>
+                                    {{partyform.end_date}}
+                                </div>
+                            </div> -->
+                            <!-- <div class="col-md-6"> 
+                                <div class="form-group">
+                                    <label>Sale Status *</label>
+                                    <select name="type" class="selectpicker form-control" data-style="py-0">
+                                        <option>Completed</option>
+                                        <option>Pending</option>
+                                    </select>
+                                </div>
+                            </div>  -->
+                            <!-- <div class="col-md-6"> 
+                                <div class="form-group">
+                                    <label>Payment Status *</label>
+                                    <select name="type" class="selectpicker form-control" data-style="py-0">
+                                        <option>Pending</option>
+                                        <option>Due</option>
+                                        <option>Paid</option>
+                                    </select>
+                                </div>
+                            </div>  -->
+                            <!-- <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Sale Note *</label>
+                                    <div id="quill-tool">
+                                        <button class="ql-bold" data-toggle="tooltip" data-placement="bottom" title="Bold"></button>
+                                        <button class="ql-underline" data-toggle="tooltip" data-placement="bottom" title="Underline"></button>
+                                        <button class="ql-italic" data-toggle="tooltip" data-placement="bottom" title="Add italic text <cmd+i>"></button>
+                                        <button class="ql-image" data-toggle="tooltip" data-placement="bottom" title="Upload image"></button>
+                                        <button class="ql-code-block" data-toggle="tooltip" data-placement="bottom" title="Show code"></button>
+                                    </div>
+                                    <div id="quill-toolbar">
+                                    </div>
+                                </div>
+                            </div>  -->
+                        </div>                            
+                        <a href="{% url 'page_list_party' %}" type="button" class="btn btn-primary mr-2">Return</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% endblock content %}
+    <!-- End Content -->

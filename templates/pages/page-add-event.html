@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+    <!-- Content -->
+{% block content %}
+{% if user.is_authenticated %}
+
+{% if user.role == 'WH' or user.is_superuser %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Add Event</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">                                  
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Event Name *</label>
+                                    {{eventform.event_name}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div> 
+                            <div class="col-md-6">
+                                <label>Leader Name *</label>
+                                <div class="form-group">
+                                    {{eventform.leader_name}}
+                                </div> 
+                            </div>  
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Warehouse Name *</label>
+                                    {{eventform.wh_leader}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>   
+                            <!-- <div class="col-md-6"> 
+                                <div class="form-group">
+                                    <label>Order Tax *</label>
+                                    <select name="type" class="selectpicker form-control" data-style="py-0">
+                                        <option>No Text</option>
+                                        <option>GST @5%</option>
+                                        <option>VAT @10%</option>
+                                    </select>
+                                </div>
+                            </div>  -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Start Date *</label>
+                                    {{eventform.start_date}}
+                                </div>
+                            </div> 
+                            <!-- <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>End Date *</label>
+                                    {{eventform.end_date}}
+                                </div>
+                            </div> -->
+                            <!-- <div class="col-md-6"> 
+                                <div class="form-group">
+                                    <label>Sale Status *</label>
+                                    <select name="type" class="selectpicker form-control" data-style="py-0">
+                                        <option>Completed</option>
+                                        <option>Pending</option>
+                                    </select>
+                                </div>
+                            </div>  -->
+                            <!-- <div class="col-md-6"> 
+                                <div class="form-group">
+                                    <label>Payment Status *</label>
+                                    <select name="type" class="selectpicker form-control" data-style="py-0">
+                                        <option>Pending</option>
+                                        <option>Due</option>
+                                        <option>Paid</option>
+                                    </select>
+                                </div>
+                            </div>  -->
+                            <!-- <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Sale Note *</label>
+                                    <div id="quill-tool">
+                                        <button class="ql-bold" data-toggle="tooltip" data-placement="bottom" title="Bold"></button>
+                                        <button class="ql-underline" data-toggle="tooltip" data-placement="bottom" title="Underline"></button>
+                                        <button class="ql-italic" data-toggle="tooltip" data-placement="bottom" title="Add italic text <cmd+i>"></button>
+                                        <button class="ql-image" data-toggle="tooltip" data-placement="bottom" title="Upload image"></button>
+                                        <button class="ql-code-block" data-toggle="tooltip" data-placement="bottom" title="Show code"></button>
+                                    </div>
+                                    <div id="quill-toolbar">
+                                    </div>
+                                </div>
+                            </div>  -->
+                        </div>                            
+                        <button type="submit" class="btn btn-primary mr-2">Add Event</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+
+{% else %}
+<div class="text-center">
+    <img src="{% static 'images/error/access_denied.jpg' %}"
+         class="img-fluid"
+         alt="Access Denied"
+         style="max-width: 100%; height: auto;">
+</div>
+{% endif %}
+
+{% else %}
+
+<div class="position-relative text-center">
+    <img src="{% static 'images/error/login_first.jpg' %}" 
+         class="img-fluid w-100 vh-100" 
+         alt="Access Denied"
+         style="object-fit: cover;">
+
+    <a href="{% url 'login' %}" 
+       class="btn position-absolute" 
+       style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+       LOG IN
+    </a>
+</div>
+
+{% endif %}
+{% endblock content %}
+    <!-- End Content -->

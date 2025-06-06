@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- Content -->
+{% block content %}
+{% if user.is_authenticated %}
+    {% if user.role == 'WH' or user.is_superuser %}
+
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Return Order</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="returnOrderForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Event Code *</label>
+                                    {{returnform.event_code}}
+                                </div>
+                            </div>  
+                            <div class="col-md-6">                      
+                                <div class="form-group">
+                                    <label>Product *</label>
+                                    {{returnform.product_id}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">                      
+                                <div class="form-group">
+                                    {{returnform.state}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>    
+                        </div>                            
+                        <button type="submit" class="btn btn-primary mr-2">Return Device</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="table-responsive rounded mb-3">
+            <table class="data-table table mb-0 tbl-server-info">
+                <thead class="bg-white text-uppercase">
+                    <tr class="ligth ligth-data">
+                        <th>Event Products</th>
+                    </tr>
+                </thead>
+                <tbody class="ligth-body">
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{order.product_id}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="table-responsive rounded mb-3">
+            <table class="data-table table mb-0 tbl-server-info">
+                <thead class="bg-white text-uppercase">
+                    <tr class="ligth ligth-data">
+                        <th>Return Products</th>
+                    </tr>
+                </thead>
+                <tbody class="ligth-body">
+                    {% for order in returnorders %}
+                    <tr>
+                        <td>{{order.product_id}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productIdField = document.querySelector('select[name="product_id"]');
+    const returnOrderForm = document.getElementById('returnOrderForm');
+
+    productIdField.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            returnOrderForm.submit();
+        }
+    });
+});
+</script>
+
+{% else %}
+<div class="text-center">
+    <img src="{% static 'images/error/access_denied.jpg' %}" 
+         class="img-fluid" 
+         alt="Access Denied" 
+         style="max-width: 100%; height: auto;">
+</div>
+{% endif %}
+
+{% else %}
+
+<div class="position-relative text-center">
+<img src="{% static 'images/error/login_first.jpg' %}" 
+     class="img-fluid w-100 vh-100" 
+     alt="Access Denied"
+     style="object-fit: cover;">
+
+<a href="{% url 'login' %}" 
+   class="btn position-absolute" 
+   style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+   LOG IN
+</a>
+</div>
+
+{% endif %}
+{% endblock content %}
+<!-- End Content -->

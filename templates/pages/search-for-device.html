@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+    <!-- Content -->
+{% block content %}
+{% if user.is_authenticated %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 class="mb-3">Search For Device</h4>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="table-responsive rounded mb-3">
+            <table class="data-table table mb-0 tbl-server-info">
+                <thead class="bg-white text-uppercase">
+                    <tr class="ligth ligth-data">
+                        <th>Device</th>
+                        <th>Location</th>
+
+                    </tr>
+                </thead>
+                <tbody class="ligth-body">
+                    <tr>
+                        <td>{{product_name}}</td>
+                        <td>{{place}}</td>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% else %}
+
+<div class="position-relative text-center">
+    <img src="{% static 'images/error/login_first.jpg' %}" 
+         class="img-fluid w-100 vh-100" 
+         alt="Access Denied"
+         style="object-fit: cover;">
+
+    <a href="{% url 'login' %}" 
+       class="btn position-absolute" 
+       style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+       LOG IN
+    </a>
+</div>
+
+{% endif %}
+{% endblock content %}
+    <!-- End Content -->

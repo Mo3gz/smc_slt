@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+    <!-- Content -->
+{% block content %}
+{% if user.is_authenticated %}
+{% if user.is_superuser %}
+
+
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Update Package</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">                      
+                                <div class="form-group">
+                                    <label>Package Name *</label>
+                                    {{packform.pack_name}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>    
+                        </div>                            
+                        <button type="submit" class="btn btn-primary mr-2">Save</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% else %}
+<h2>Acces Denied</h2>
+<p>Only The Admin Person Can Open This Page...</p>
+{% endif %}
+{% else %}
+<div class="position-relative text-center">
+    <img src="{% static 'images/error/login_first.jpg' %}" 
+         class="img-fluid w-100 vh-100" 
+         alt="Access Denied"
+         style="object-fit: cover;">
+
+    <a href="{% url 'login' %}" 
+       class="btn position-absolute" 
+       style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+       LOG IN
+    </a>
+</div>
+{% endif %}
+{% endblock content %}
+    End Content

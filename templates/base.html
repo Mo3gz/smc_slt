@@ -1,0 +1,94 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <title>SMC/SLT</title>
+      
+      <!-- Favicon -->
+      <link rel="shortcut icon" href="{% static 'images/icon.ico' %}" />
+
+      <!-- CSS Files -->
+      <link rel="stylesheet" href="{% static 'css/backend-plugin.min.css' %}">
+      <link rel="stylesheet" href="{% static 'css/backend.css' %}">
+      <link rel="stylesheet" href="{% static 'vendor/@fortawesome/fontawesome-free/css/all.min.css' %}">
+      <link rel="stylesheet" href="{% static 'vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css' %}">
+      <link rel="stylesheet" href="{% static 'vendor/remixicon/fonts/remixicon.css' %}">
+      </head>
+  <body class="  ">
+        <!-- loader Start -->
+        <div id="loading">
+            <div id="loading-center">
+            </div>
+      </div>
+      <!-- loader END -->
+
+      <!-- Wrapper Start -->
+    <div class="wrapper">
+        <!-- Sidebar -->
+        {% include 'parts/sidebar.html' %}
+
+        <!-- Navbar -->
+        {% include 'parts/navbar.html' %}
+
+        <!-- Content -->
+        <div class="content-page">
+            {% if messages %}
+            <div class="alert-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+            {% block content %}
+            {% endblock content %}
+        </div>
+        
+        <!-- Footer -->
+        {% include 'parts/footer.html' %}
+        
+        <style>
+            .dataTables_filter,  /* 🔍 Hide Search Bar */
+    .dataTables_length,  /* 📏 Hide "Show X entries" */
+    .dataTables_info,    /* ℹ Hide "Showing X of Y entries" */
+    .dataTables_paginate { /* 📄 Hide Pagination */
+        display: none !important;
+    }
+        </style>
+    </div>
+
+        
+
+
+
+<!-- Backend Bundle JavaScript -->
+<script src="{% static 'js/backend-bundle.min.js' %}"></script>
+    
+<!-- Table Treeview JavaScript -->
+<script src="{% static 'js/table-treeview.js' %}"></script>
+
+<!-- Chart Custom JavaScript -->
+<script src="{% static 'js/customizer.js' %}"></script>
+
+<!-- Chart Custom JavaScript -->
+<script async src="{% static 'js/chart-custom.js' %}"></script>
+
+<!-- app JavaScript -->
+<script src="{% static 'js/app.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+$('#yourTableId').DataTable({
+    paging: false,        // ❌ Disable Pagination
+    searching: false,     // ❌ Disable Search Box
+    info: false,          // ❌ Hide "Showing X of Y entries"
+    lengthChange: false   // ❌ Remove "Show X entries" dropdown
+});
+});
+</script>
+
+</body>
+</html>

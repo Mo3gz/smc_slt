@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+    <!-- Content -->
+{% block content %}
+{% if user.is_authenticated %}
+    {% if user.role == 'WH' or user.is_superuser %}
+
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">View inventory</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">          
+                            <div class="col-md-12">                      
+                                <div class="form-group">
+                                    <label>Product Name *</label>
+                                    {{inventoryform.product_name}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>                                 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Remail Quantity *</label>
+                                    {{inventoryform.remain_quantity}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>  
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Inventory Quantity *</label>
+                                    {{inventoryform.inventory_quantity}}
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>                                 
+                        </div>                            
+                        <a href="{% url 'page_list_inventory' %}" type="button" class="btn btn-primary mr-2">Return</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+
+{% else %}
+<div class="text-center">
+    <img src="{% static 'images/error/access_denied.jpg' %}" 
+         class="img-fluid" 
+         alt="Access Denied" 
+         style="max-width: 100%; height: auto;">
+</div>
+{% endif %}
+
+{% else %}
+
+<div class="position-relative text-center">
+<img src="{% static 'images/error/login_first.jpg' %}" 
+     class="img-fluid w-100 vh-100" 
+     alt="Access Denied"
+     style="object-fit: cover;">
+
+<a href="{% url 'login' %}" 
+   class="btn position-absolute" 
+   style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+   LOG IN
+</a>
+</div>
+
+{% endif %}
+{% endblock content %}
+    <!-- End Content -->

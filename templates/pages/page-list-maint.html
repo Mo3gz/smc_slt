@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 class="mb-3">Maintenance List</h4>
+                    <!-- <p class="mb-0">The Maintenance List outlines scheduled and completed maintenance tasks, ensuring the proper <br>
+                        upkeep, performance, and longevity of equipment or systems.</p> -->
+                </div>
+                {% if user.role == 'WH' or user.username == 'admin'%}
+                <a href="{% url 'page_add_maint' %}" class="btn btn-primary add-list"><i class="las la-plus mr-3"></i>Add Maintenance</a>
+                {% else %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-12 mb-3">
+            <div class="d-flex justify-content-between">
+                <form method="get" class="d-flex justify-content-start">
+                    <label for="page_size" class="mr-2">Show:</label>
+                    <select id="page_size" name="page_size" onchange="this.form.submit()" class="custom-select" style="width: 60px; height: 30px; padding: .25rem .5rem; font-size: .875rem; line-height: 1.5;">
+                        {% for size in page_sizes %}
+                            <option value="{{ size }}" {% if page_size == size %}selected{% endif %}>{{ size }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <form method="get" class="d-flex justify-content-end">
+                    <input type="hidden" name="page_size" value="{{ page_size }}">
+                    <label style="margin-right: 10px;">Search:</label>
+                    <input type="text" name="q" value="{{ query }}" class="form-control w-auto" style="height: 30px; padding: .25rem .5rem; font-size: .875rem; line-height: 1.5;">
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="table-responsive rounded mb-3">
+                <table class="data-table table mb-0 tbl-server-info">
+                    <thead class="bg-white text-uppercase">
+                        <tr class="ligth ligth-data">
+                            <th>Event Code</th>
+                            <th>Product</th>
+                            <th>Description</th>
+                            <th>Delivered By</th>
+                            <th>Received By</th>
+                            <th>Damage Date</th>
+                            <th>Maintenance Date</th>
+                            <th>Status</th>
+                            {% if user.role == 'WH' or user.username == 'admin'%}
+                            <th>Action</th>
+                            {% else %}
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody id="maint-table-body" class="ligth-body">
+                    {% for maint in page_obj %}
+                        <tr>
+                            <td>{{ maint.event_code }}</td>
+                            <td>{{ maint.product_id }}</td>
+                            <td>
+                                <a href="#" class="text-primary" onclick="showDescription('{{ maint.description|escapejs }}')">
+                                    {{ maint.description|truncatechars:20 }}
+                                </a>
+                            </td>
+                            <td>{{ maint.delivered_by }}</td>
+                            <td>{{ maint.received_by }}</td>
+                            <td>{{ maint.damage_date }}</td>
+                            <td>{{ maint.maint_date }}</td>
+                            <td>{{ maint.status }}</td>
+                            {% if user.role == 'WH' or user.username == 'admin' %}
+                            <td>
+                                <div class="d-flex align-items-center list-action">
+                                    <a class="badge bg-warning mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"
+                                        href="{% url 'page_delete_maint' maint.id %}"><i class="ri-delete-bin-line mr-0"></i></a>
+                                    <a class="badge bg-light mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Return"
+                                        href="{% url 'return_maint' maint.id %}"><i class="ri-exchange-line"></i></a>
+                                </div>
+                            </td>
+                            {% else %}
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}&q={{ query }}">Previous</a></li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&q={{ query }}">{{ num }}</a></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}&page_size={{ page_size }}&q={{ query }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}&q={{ query }}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+
+{% else %}
+<div class="position-relative text-center">
+    <img src="{% static 'images/error/login_first.jpg' %}" 
+         class="img-fluid w-100 vh-100" 
+         alt="Access Denied"
+         style="object-fit: cover;">
+
+    <a href="{% url 'login' %}" 
+       class="btn position-absolute" 
+       style="bottom: 200px; right: 260px; font-size: 18px; padding: 12px 24px; background-color: #FFD000; color: #0c1559;">
+       LOG IN
+    </a>
+</div>
+{% endif %}
+
+<!-- Modal -->
+<div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="descriptionModalLabel">Full Description</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modalDescription">
+          <!-- Description will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+</div>
+
+<style>
+    #modalDescription {
+        word-wrap: break-word;  /* Break long words */
+        overflow-wrap: break-word; /* Ensure proper text wrapping */
+        white-space: normal; /* Allow text wrapping */
+        max-width: 100%; /* Prevent text from going beyond the modal */
+    }
+    
+    .modal-body {
+        max-height: 400px;  /* Set a fixed height */
+        overflow-y: auto;  /* Enable vertical scrolling */
+    }
+</style>
+
+<script>
+    function showDescription(fullDescription) {
+        document.getElementById('modalDescription').innerText = fullDescription; // Set full text inside modal
+        $('#descriptionModal').modal('show');  // Open the modal (Requires Bootstrap)
+    }
+</script>
+
+{% endblock content %}
