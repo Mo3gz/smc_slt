@@ -208,14 +208,28 @@ def page_view_inventory(request, id):
 
 def page_add_event(request):
     if request.method == 'POST':
+        # For POST requests, the form is populated by submitted data
         form = EventForm(request.POST)
+        
+        # Your existing validation for empty fields
         if not all(request.POST.get(field, '').strip() for field in ['event_name', 'leader_name', 'wh_leader']):
             messages.warning(request, 'Fields cannot be empty or only contain spaces.')
         elif form.is_valid():
             event = form.save()
             return redirect(f'/add-order-{event.event_code}')  # Redirect to add-order page with event_code
 
-    context = {'eventform': EventForm()}
+    else: # This block handles GET requests (when the page is first loaded)
+        initial_data = {}
+        if request.user.is_authenticated and hasattr(request.user, 'role') and request.user.role == 'WH':
+            # If the user is a 'WH' leader, pre-fill the 'wh_leader' field with their username
+            initial_data['wh_leader'] = request.user.username
+            print(f"DEBUG: User '{request.user.username}' (WH) is logged in. Pre-filling 'wh_leader'.") # For debugging
+
+        # Create the form instance, passing the initial data
+        form = EventForm(initial=initial_data)
+
+    # Pass the form instance to the template context
+    context = {'eventform': form}
     return render(request, 'pages/page-add-event.html', context)
 
 
@@ -488,7 +502,7 @@ def page_add_maint(request):
                         # ✅ Send Email Notification
                         maintenance_url = request.build_absolute_uri(reverse('page_list_maint'))  # Change 'page_list_maint' to the correct view name
                         subject = "New Maintenance Added"
-                        recipient_emails = ["kevinremon1234@gmail.com", "Paulagirgis123@gmail.com"]  # Change to the target email
+                        recipient_emails = ["Zakybassem@gmail.com", "mario.abadir@gmail.com", "tuodouri@gmail.com"]  # Change to the target email
                         message = message = f"""
                         <html>
                         <body>
@@ -584,7 +598,7 @@ def add_product_maint(request, event_code, id, product_name):
                     # ✅ Send Email Notification
                     maintenance_url = request.build_absolute_uri(reverse('page_list_maint'))  # Change 'page_list_maint' to the correct view name
                     subject = "New Maintenance Added"
-                    recipient_emails = ["kevinremon1234@gmail.com", "Paulagirgis123@gmail.com"]  # Change to the target email
+                    recipient_emails = ["Zakybassem@gmail.com", "mario.abadir@gmail.com", "tuodouri@gmail.com"]  # Change to the target email
                     message = message = f"""
                     <html>
                     <body>
@@ -660,7 +674,7 @@ def return_maint(request, id):
                     # ✅ Send Email Notification
                     maintenance_url = request.build_absolute_uri(reverse('page_list_maint'))  # Change 'page_list_maint' to the correct view name
                     subject = "Item Maintenance Update"
-                    recipient_emails = ["kevinremon1234@gmail.com", "Paulagirgis123@gmail.com"]  # Change to the target email
+                    recipient_emails = ["paulagirgis123@gmail.com", "polakameel888@gmail.com", "gsafwat369@gmail.com"]  # Change to the target email
                     message = f"""
                     <html>
                     <body>
@@ -709,7 +723,7 @@ def return_maint(request, id):
                     # ✅ Send Email Notification
                     maintenance_url = request.build_absolute_uri(reverse('page_list_maint'))  # Change 'page_list_maint' to the correct view name
                     subject = "Item Maintenance Update"
-                    recipient_emails = ["kevinremon1234@gmail.com", "Paulagirgis123@gmail.com"]  # Change to the target email
+                    recipient_emails = ["paulagirgis123@gmail.com", "polakameel888@gmail.com", "gsafwat369@gmail.com"]  # Change to the target email
                     message = f"""
                     <html>
                     <body>

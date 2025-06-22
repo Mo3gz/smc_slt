@@ -1,6 +1,6 @@
 {% load static %}
 {% if user.is_authenticated %}
-    {% if user.username == 'admin' %}
+    {% if request.user.is_superuser %}
 
 <!doctype html>
 <html lang="en">

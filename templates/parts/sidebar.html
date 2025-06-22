@@ -13,7 +13,7 @@
         <div class="data-scrollbar" data-scroll="1">
             <nav class="iq-sidebar-menu">
                 <ul id="iq-sidebar-toggle" class="iq-menu">
-                {% if user.username == 'admin' %}
+                {% if request.user.is_superuser %}
 
                     <li class=" ">
                         <a href="#category" class="collapsed" data-toggle="collapse" aria-expanded="false">

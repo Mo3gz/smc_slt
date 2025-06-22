@@ -1,6 +1,6 @@
 {% load static %}
 {% if user.is_authenticated %}
-    {% if user.username == 'admin' %}
+    {% if request.user.is_superuser %}
 
 <!doctype html>
 <html lang="en">
@@ -30,15 +30,68 @@
 
       <section class="login-content">
          <div class="container">
-            {% if messages %}
-            <div class="alert-container">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+            <style>
+               /* Basic styling for the message container */
+               .message-center {
+                   position: fixed; /* Keep it in place on the screen */
+                   top: 50%; /* Start at the vertical center */
+                   left: 50%; /* Start at the horizontal center */
+                   transform: translate(-50%, -50%); /* Precisely centers the element */
+                   z-index: 1000; /* Ensures it's on top of other content */
+                   width: 90%; /* Take up most of the width */
+                   max-width: 400px; /* But not too wide on large screens */
+                   text-align: center; /* Center the text inside */
+                   pointer-events: none; /* Allows clicks to pass through the container */
+               }
+           
+               /* Style for individual messages */
+               .message-box {
+                   padding: 15px;
+                   margin-bottom: 10px; /* Space between multiple messages */
+                   border-radius: 8px; /* Slightly rounded corners */
+                   font-weight: bold;
+                   color: white; /* White text for all messages */
+                   box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Soft shadow */
+                   pointer-events: auto; /* Re-enable clicks on the message itself */
+           
+                   /* Animation to fade out after a few seconds */
+                   animation: fadeOutEffect 6s forwards; /* 6-second animation, stays at end state */
+                   opacity: 1; /* Start fully visible */
+               }
+           
+               /* Specific style for error messages (red background) */
+               .message-box.error {
+                   background-color: #dc3545; /* Red */
+               }
+           
+               /* Specific style for success messages (green background) */
+               .message-box.success {
+                   background-color: #28a745; /* Green */
+               }
+           
+               /* Specific style for info messages (blue background) */
+               .message-box.info {
+                   background-color: #17a2b8; /* Blue */
+               }
+           
+               /* Keyframes for the fade out animation */
+               @keyframes fadeOutEffect {
+                   0% { opacity: 1; }
+                   80% { opacity: 1; } /* Stay fully visible for most of the duration */
+                   100% { opacity: 0; display: none; } /* Fade out and then hide */
+               }
+           </style>
+           
+           {% if messages %}
+               <div class="message-center">
+                   {% for message in messages %}
+                       {# The 'message.tags' will give us 'error', 'success', 'info', etc. #}
+                       <div class="message-box {{ message.tags }}">
+                           {{ message }}
+                       </div>
+                   {% endfor %}
+               </div>
+           {% endif %}
             <div class="row align-items-center justify-content-center height-self-center">
                <div class="col-lg-8">
                   <div class="card auth-card">

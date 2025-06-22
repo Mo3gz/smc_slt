@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, SetPasswordForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from .forms import RegisterUserForm, SetPasswordForm, CustomSetPasswordForm, UpdateUserRoleForm
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -11,12 +11,13 @@ from django.core.mail import EmailMessage, send_mail
 from .models import CustomUser  # Import your custom user model
 from .tokens import account_activation_token
 from django.contrib.auth.views import PasswordResetConfirmView
-from .forms import CustomSetPasswordForm, UpdateUserRoleForm
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.cache import never_cache
+from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse
 
-@never_cache  # Prevents browser from caching login page (fixes CSRF token issues)
+@never_cache  # Prevent browser from caching login page (fixes CSRF token issues)
 def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -62,7 +63,6 @@ def activate(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
 
-
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
@@ -75,17 +75,30 @@ def activate(request, uidb64, token):
     return redirect('page_list_event')
 
 
-
-
 def activateEmail(request, user, to_email):
     mail_subject = 'Activate your user account.'
     uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
     token = account_activation_token.make_token(user)
-    activation_url = f"{'https' if request.is_secure() else 'http'}://{get_current_site(request).domain}/activate/{uidb64}/{token}"
+    # Using request.build_absolute_uri with reverse for robust URL building
+    activation_url = request.build_absolute_uri(
+        reverse('activate', kwargs={'uidb64': uidb64, 'token': token})
+    )
 
-    message = f"Hi {user.username},\n\nClick the link below to activate your account:\n\n{activation_url}"
+    # --- THIS IS THE ONLY LINE THAT CHANGES TO USE THE TEMPLATE ---
+    message = render_to_string('authenticate/account_activation_email_import.html', {
+        'user': user,
+        'activation_url': activation_url,
+        'password': user.password,
+    })
+    # --- END OF CHANGE ---
+
     email = EmailMessage(mail_subject, message, 'smc.slt2025@gmail.com', to=[to_email])
+    
+    # --- ADD THIS LINE to tell the email client it's HTML ---
+    email.content_subtype = "html" 
+    # --- END OF ADDITION ---
 
+    email.send() # Make sure the email is actually sent
 
 
 def register_user(request):
@@ -146,6 +159,7 @@ def resend_activation_email(request):
 
     return render(request, 'authenticate/resend_activation.html')
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def update_user_role(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
@@ -163,7 +177,48 @@ def update_user_role(request, user_id):
     return render(request, 'authenticate/update-user-role.html', {'form': form, 'user': user})
 
 
+# --- NEW: Delete User View ---
+@user_passes_test(lambda u: u.is_superuser) # Only superusers can delete
+def delete_user(request, user_id):
+    # Get the user to be deleted, or return 404 if not found
+    user_to_delete = get_object_or_404(CustomUser, id=user_id)
+
+    # IMPORTANT SECURITY CHECK: Prevent a superuser from deleting their own account
+    if request.user.id == user_to_delete.id:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('page_list_users')
+
+    if request.method == 'POST':
+        try:
+            username = user_to_delete.username # Store username for the message
+            user_to_delete.delete() # Perform the deletion
+            messages.success(request, f"User '{username}' deleted successfully.")
+        except Exception as e:
+            messages.error(request, f"Error deleting user '{username}': {e}")
+        return redirect('page_list_users') # Redirect back to the user list
+    else:
+        # If someone tries to access this view with a GET request (e.g., by typing the URL),
+        # we don't allow it for security reasons.
+        messages.error(request, "Invalid request method for deleting a user. Please use the delete button.")
+        return redirect('page_list_users')
+
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     form_class = CustomSetPasswordForm
 
 
+# ---- Custom Password Reset View ----
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'authenticate/password_reset_form.html'
+    email_template_name = 'authenticate/password_reset_email.html'
+    form_class = PasswordResetForm
+    success_url = reverse_lazy('password_reset_done')
+
+    def form_valid(self, form):
+        email = form.cleaned_data["email"]
+        UserModel = get_user_model()
+        users = UserModel.objects.filter(email=email, is_active=True)
+        if users.exists():
+            return super().form_valid(form)  # Send reset email as usual
+        else:
+            messages.error(self.request, "No account found with this email address.")
+            return self.form_invalid(form)

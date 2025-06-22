@@ -47,7 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'smc_slt_app',
     'members',
+    'django.contrib.sites', # <--- ADD THIS LINE
+
 ]
+
+# You'll also need this below INSTALLED_APPS
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

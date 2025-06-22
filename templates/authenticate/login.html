@@ -29,39 +29,47 @@
     
       <div class="wrapper">
       <section class="login-content">
+         <p class="text-danger">{{ message }}</p>
          {% if messages %}
-    <!-- Bootstrap Modal -->
-    <div class="modal fade show" id="messageModal" tabindex="-1" aria-hidden="true" style="display: block;">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-center">
-                <div class="modal-header">
-                    <h5 class="modal-title">Notification</h5>
-                </div>
-                <div class="modal-body">
-                    {% for message in messages %}
-                        <p class="text-danger">{{ message }}</p>  <!-- Message in red -->
-                    {% endfor %}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="closeModalButton">Okay</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById("closeModalButton").addEventListener("click", function () {
-            var modal = document.getElementById("messageModal");
-            modal.classList.remove("show");
-            modal.style.display = "none";
-            document.body.classList.remove("modal-open");  // Remove Bootstrap modal-open class
-            var backdrop = document.querySelector(".modal-backdrop");
-            if (backdrop) {
-                backdrop.remove();  // Remove modal background overlay
-            }
-        });
-    </script>
-{% endif %}
+             <div class="modal fade show" id="messageModal" tabindex="-1" aria-hidden="true" style="display: block;">
+                 <div class="modal-dialog modal-dialog-centered">
+                     <div class="modal-content text-center">
+                         <div class="modal-header">
+                             <h5 class="modal-title">Notification</h5>
+                         </div>
+                         <div class="modal-body">
+                             {% for message in messages %}
+                                 <p class="
+                                     {% if message.tags == 'success' %}text-success
+                                     {% elif message.tags == 'error' %}text-danger
+                                     {% elif message.tags == 'warning' %}text-warning
+                                     {% elif message.tags == 'info' %}text-info
+                                     {% else %}text-muted{% endif %}
+                                 ">
+                                     {{ message }}
+                                 </p>
+                             {% endfor %}
+                         </div>
+                         <div class="modal-footer">
+                             <button type="button" class="btn btn-primary" id="closeModalButton">Okay</button>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         
+             <script>
+                 document.getElementById("closeModalButton").addEventListener("click", function () {
+                     var modal = document.getElementById("messageModal");
+                     modal.classList.remove("show");
+                     modal.style.display = "none";
+                     document.body.classList.remove("modal-open");  // Remove Bootstrap modal-open class
+                     var backdrop = document.querySelector(".modal-backdrop");
+                     if (backdrop) {
+                         backdrop.remove();  // Remove modal background overlay
+                     }
+                 });
+             </script>
+         {% endif %}
 
          <div class="container">
             <div class="row align-items-center justify-content-center height-self-center">

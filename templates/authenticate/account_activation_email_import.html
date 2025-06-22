@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Account Activation</title>
+</head>
+<body>
+    <p>Hi {{ user.username }},</p>
+
+    <p>Thank you for registering on our platform. Your account has been created.</p>
+
+    <p>Here are your initial login details:</p>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Password:</strong> {{ password }}</p>
+
+    <p>To activate your account, please click on the link below:</p>
+    <p><a href="{{ activation_url }}">Activate Your Account</a></p>
+
+</body>
+</html>
