@@ -32,6 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = []  # Add your domain here
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["smc-slt.onrender.com"])
 # ALLOWED_HOSTS = ['Kevin1560.pythonanywhere.com']
 
 AUTH_USER_MODEL = 'members.CustomUser'
