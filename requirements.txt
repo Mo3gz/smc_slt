@@ -2,3 +2,4 @@ Django
 dotenv
 mysqlclient
 six
+gunicorn
