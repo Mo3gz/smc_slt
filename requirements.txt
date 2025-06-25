@@ -2,3 +2,10 @@ Django
 dotenv
 mysqlclient
 six
+gunicorn
+streamlit
+torch
+numpy
+opencv-python
+Pillow
+transformers
